@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.superheroes
 
 import android.os.Bundle
@@ -29,8 +13,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.TextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.superheroes.model.HeroesRepository
 import com.example.superheroes.ui.theme.SuperheroesTheme
 
@@ -40,7 +33,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SuperheroesTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -51,9 +43,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * Composable that displays an app bar and a list of heroes.
-     */
     @Composable
     fun SuperheroesApp() {
         Scaffold(
@@ -61,21 +50,27 @@ class MainActivity : ComponentActivity() {
             topBar = {
                 TopAppBar()
             }
-        ) {
-            /* Important: It is not a good practice to access data source directly from the UI.
-            In later units you will learn how to use ViewModel in such scenarios that takes the
-            data source as a dependency and exposes heroes.
-             */
-            val heroes = HeroesRepository.heroes
-            HeroesList(heroes = heroes, contentPadding = it)
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                val textState = remember { mutableStateOf("") }
+                TextField(
+                    value = textState.value,
+                    onValueChange = { newText -> textState.value = newText },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .height(64.dp)
+                        .fillMaxWidth()
+                )
+                val heroes = HeroesRepository.heroes
+                HeroesList(heroes = heroes, contentPadding = PaddingValues(16.dp), textState = textState.value)
+            }
         }
     }
 
-    /**
-     * Composable that displays a Top Bar with an icon and text.
-     *
-     * @param modifier modifiers to set to this composable
-     */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun TopAppBar(modifier: Modifier = Modifier) {
